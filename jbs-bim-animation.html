@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JBS BIM Animation</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #050d1a; overflow: hidden; width: 100vw; height: 100vh; }
+  canvas { display: block; }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script>
+// ── RENDERER ──
+const canvas = document.getElementById('c');
+const W = window.innerWidth, H = window.innerHeight;
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(W, H);
+renderer.setClearColor(0x050d1a, 1);
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x050d1a, 0.018);
+
+// ── CAMERA ──
+const camera = new THREE.PerspectiveCamera(42, W / H, 0.1, 400);
+camera.position.set(22, 12, 28);
+camera.lookAt(0, 5, 0);
+
+// ── MATERIALS ──
+// Core blue line
+const matBlue = new THREE.LineBasicMaterial({
+  color: 0x00aaff, transparent: true, opacity: 1,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+// Bright core (inner glow)
+const matCore = new THREE.LineBasicMaterial({
+  color: 0xaaddff, transparent: true, opacity: 0.7,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+// Outer glow (wider, dimmer)
+const matGlow = new THREE.LineBasicMaterial({
+  color: 0x0055cc, transparent: true, opacity: 0.35,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+// Slab grid
+const matGrid = new THREE.LineBasicMaterial({
+  color: 0x003366, transparent: true, opacity: 0.6,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+
+// ── GEOMETRY HELPERS ──
+function box(w, h, d) {
+  return new THREE.EdgesGeometry(new THREE.BoxGeometry(w, h, d));
+}
+
+function lineSeg(geo, mat) {
+  return new THREE.LineSegments(geo, mat.clone());
+}
+
+// Build a glowing edge: 3 layers (core, mid, outer)
+function glowEdge(geo) {
+  const g = new THREE.Group();
+  g.add(new THREE.LineSegments(geo, matCore.clone())); // bright core
+  g.add(new THREE.LineSegments(geo, matBlue.clone())); // blue mid
+  g.add(new THREE.LineSegments(geo, matGlow.clone())); // soft outer
+  return g;
+}
+
+// ── WAREHOUSE DIMENSIONS ──
+const BW = 14, BD = 20, BH = 7; // bay width, depth, wall height
+const COLS_X = [-7, 0, 7];       // 3 column lines across
+const COLS_Z = [-10, 0, 10];     // 3 rows along depth
+const ROOF_H = 3.8;              // apex above walls
+
+// ── BUILD COMPONENTS ──
+// Each component: { group, origin, explodeVel }
+const components = [];
+
+function makeComponent(group, ox, oy, oz) {
+  const c = { group, ox, oy, oz, px: ox, py: oy, pz: oz, vx:0, vy:0, vz:0 };
+  components.push(c);
+  scene.add(group);
+  return c;
+}
+
+// ── 1. CONCRETE SLAB ──
+const slabGrp = new THREE.Group();
+const slabGeo = box(BW + 2, 0.3, BD + 2);
+slabGrp.add(glowEdge(slabGeo));
+// Grid on slab
+const gridGrp = new THREE.Group();
+for (let x = -8; x <= 8; x += 2) {
+  const g2 = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(x, 0.16, -11), new THREE.Vector3(x, 0.16, 11)
+  ]);
+  gridGrp.add(new THREE.LineSegments(g2, matGrid.clone()));
+}
+for (let z = -11; z <= 11; z += 2) {
+  const g2 = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-8, 0.16, z), new THREE.Vector3(8, 0.16, z)
+  ]);
+  gridGrp.add(new THREE.LineSegments(g2, matGrid.clone()));
+}
+slabGrp.add(gridGrp);
+slabGrp.position.set(0, 0.15, 0);
+const slabComp = makeComponent(slabGrp, 0, 0.15, 0);
+
+// ── 2. COLUMNS (9 total) ──
+const columnComps = [];
+COLS_X.forEach(cx => {
+  COLS_Z.forEach(cz => {
+    const cGrp = new THREE.Group();
+    cGrp.add(glowEdge(box(0.4, BH, 0.4)));
+    // base plate
+    cGrp.add(glowEdge(box(1, 0.15, 1)));
+    cGrp.position.set(cx, BH / 2 + 0.3, cz);
+    const cc = makeComponent(cGrp, cx, BH / 2 + 0.3, cz);
+    columnComps.push(cc);
+  });
+});
+
+// ── 3. EAVE BEAMS (perimeter horizontal) ──
+const beamComps = [];
+function makeBeam(x1,y,z1,x2,z2) {
+  const len = Math.sqrt((x2-x1)**2 + (z2-z1)**2);
+  const bGrp = new THREE.Group();
+  const bGeo = box(len, 0.35, 0.35);
+  bGrp.add(glowEdge(bGeo));
+  const mx = (x1+x2)/2, mz = (z1+z2)/2;
+  bGrp.position.set(mx, y, mz);
+  if (Math.abs(z2-z1) > 0.1) bGrp.rotation.y = Math.PI/2;
+  const bc = makeComponent(bGrp, mx, y, mz);
+  beamComps.push(bc);
+}
+const eaveY = BH + 0.3;
+// Long beams (along Z)
+COLS_X.forEach(cx => makeBeam(cx, eaveY, -10, cx, 10));
+// Cross beams (along X)
+COLS_Z.forEach(cz => makeBeam(-7, eaveY, cz, 7, cz));
+
+// ── 4. ROOF RAFTERS ──
+const rafterComps = [];
+const rafterLen = Math.sqrt((BW/2)**2 + ROOF_H**2);
+COLS_Z.forEach(cz => {
+  [-1,1].forEach(side => {
+    const rGrp = new THREE.Group();
+    rGrp.add(glowEdge(box(rafterLen + 0.5, 0.25, 0.25)));
+    const ang = Math.atan2(ROOF_H, BW/2) * side * -1;
+    rGrp.rotation.z = ang;
+    const mx = side * (BW / 4), my = eaveY + ROOF_H/2;
+    rGrp.position.set(mx, my, cz);
+    const rc = makeComponent(rGrp, mx, my, cz);
+    rafterComps.push(rc);
+  });
+});
+
+// ── 5. ROOF PURLINS (horizontal along Z) ──
+const purlinComps = [];
+const purlinXPositions = [-6, -4, -2, 0, 2, 4, 6];
+purlinXPositions.forEach(px => {
+  // height based on roof slope
+  const frac = Math.abs(px) / (BW / 2);
+  const py = eaveY + ROOF_H * (1 - frac);
+  const pGrp = new THREE.Group();
+  pGrp.add(glowEdge(box(0.2, 0.2, BD + 0.5)));
+  pGrp.position.set(px, py, 0);
+  const pc = makeComponent(pGrp, px, py, 0);
+  purlinComps.push(pc);
+});
+
+// ── 6. RIDGE BEAM ──
+const ridgeGrp = new THREE.Group();
+ridgeGrp.add(glowEdge(box(0.3, 0.3, BD + 0.5)));
+ridgeGrp.position.set(0, eaveY + ROOF_H, 0);
+const ridgeComp = makeComponent(ridgeGrp, 0, eaveY + ROOF_H, 0);
+
+// ── ANIMATION STATE ──
+const LOOP = 5.0; // total loop seconds
+const PHASES = {
+  slab:    [0.0, 0.5],
+  columns: [0.5, 2.0],
+  beams:   [2.0, 3.0],
+  roof:    [3.0, 4.0],
+  hold:    [4.0, 4.3],
+  explode: [4.3, 5.0],
+};
+
+function easeOut(t) { return 1 - Math.pow(1-t,3); }
+function easeIn(t)  { return t*t*t; }
+function clamp01(t) { return Math.max(0, Math.min(1, t)); }
+function phaseT(t, start, end) { return clamp01((t - start) / (end - start)); }
+
+// Explode velocities — assigned once
+components.forEach(c => {
+  const ang = Math.random() * Math.PI * 2;
+  const spd = 4 + Math.random() * 8;
+  c.ev_x = Math.cos(ang) * spd + (c.ox > 0 ? 2 : -2);
+  c.ev_y = 3 + Math.random() * 6;
+  c.ev_z = Math.sin(ang) * spd + (c.oz > 0 ? 2 : -2);
+  c.ev_rx = (Math.random() - 0.5) * 2;
+  c.ev_ry = (Math.random() - 0.5) * 2;
+});
+
+// ── CAMERA ORBIT ──
+let camAngle = 0;
+const CAM_RADIUS = 34;
+const CAM_HEIGHT = 13;
+
+// ── SCANLINE PARTICLES ──
+const partGeo = new THREE.BufferGeometry();
+const PCOUNT = 120;
+const pPos = new Float32Array(PCOUNT * 3);
+for (let i = 0; i < PCOUNT; i++) {
+  pPos[i*3]   = (Math.random()-0.5)*50;
+  pPos[i*3+1] = Math.random()*20;
+  pPos[i*3+2] = (Math.random()-0.5)*40;
+}
+partGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+const partMat = new THREE.PointsMaterial({
+  color: 0x0066bb, size: 0.12, transparent: true, opacity: 0.5,
+  blending: THREE.AdditiveBlending, depthWrite: false
+});
+scene.add(new THREE.Points(partGeo, partMat));
+
+// ── MAIN LOOP ──
+const clock = new THREE.Clock();
+let t = 0; // runs 0→LOOP then resets
+
+function resetAll() {
+  components.forEach(c => {
+    c.group.position.set(c.ox, c.oy, c.oz);
+    c.group.rotation.set(0, 0, 0);
+    c.group.scale.set(1, 1, 1);
+    setOpacity(c.group, 0);
+  });
+}
+resetAll();
+
+function setOpacity(grp, val) {
+  grp.traverse(obj => {
+    if (obj.material) {
+      obj.material.opacity = val * (obj.material._baseOpacity || 1);
+    }
+  });
+}
+
+// Store base opacities
+components.forEach(c => {
+  c.group.traverse(obj => {
+    if (obj.material) obj.material._baseOpacity = obj.material.opacity;
+  });
+});
+resetAll();
+
+function applyPhase(comps, globalT, phaseStart, phaseEnd, stagger, buildFn) {
+  comps.forEach((c, i) => {
+    const delay = (i / Math.max(comps.length-1,1)) * stagger;
+    const localT = easeOut(clamp01((globalT - phaseStart - delay) / ((phaseEnd - phaseStart) - stagger)));
+    buildFn(c, localT);
+  });
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  const dt = clock.getDelta();
+  t += dt;
+  if (t >= LOOP) { t -= LOOP; resetAll(); }
+
+  // ── CAMERA slow orbit ──
+  camAngle += dt * 0.12;
+  camera.position.x = Math.cos(camAngle) * CAM_RADIUS;
+  camera.position.z = Math.sin(camAngle) * CAM_RADIUS;
+  camera.position.y = CAM_HEIGHT + Math.sin(camAngle * 0.4) * 2;
+  camera.lookAt(0, 6, 0);
+
+  const inExplode = t >= PHASES.explode[0];
+  const explodeT  = inExplode ? easeIn(phaseT(t, PHASES.explode[0], PHASES.explode[1])) : 0;
+
+  // ── SLAB ──
+  {
+    const ft = easeOut(phaseT(t, PHASES.slab[0], PHASES.slab[1]));
+    const c = slabComp;
+    if (!inExplode) {
+      c.group.scale.set(ft, 1, ft);
+      c.group.position.set(c.ox, c.oy, c.oz);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x * ep, c.oy + c.ev_y * ep - 4*ep*ep, c.oz + c.ev_z * ep);
+      c.group.rotation.x += dt * c.ev_rx * ep * 2;
+      c.group.rotation.z += dt * c.ev_ry * ep * 2;
+      setOpacity(c.group, Math.max(0, 1 - ep * 1.4));
+    }
+  }
+
+  // ── COLUMNS — rise from slab ──
+  applyPhase(columnComps, t, PHASES.columns[0], PHASES.columns[1], 0.6, (c, ft) => {
+    if (!inExplode) {
+      c.group.position.set(c.ox, c.oy - BH*(1-ft)*0.5, c.oz);
+      c.group.scale.set(1, ft, 1);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x*ep, c.oy + c.ev_y*ep - 4*ep*ep, c.oz + c.ev_z*ep);
+      c.group.rotation.y += dt * c.ev_ry * ep * 3;
+      setOpacity(c.group, Math.max(0, 1 - ep*1.4));
+    }
+  });
+
+  // ── BEAMS — extend ──
+  applyPhase(beamComps, t, PHASES.beams[0], PHASES.beams[1], 0.5, (c, ft) => {
+    if (!inExplode) {
+      c.group.scale.set(ft, 1, 1);
+      c.group.position.set(c.ox, c.oy, c.oz);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x*ep, c.oy + c.ev_y*ep - 4*ep*ep, c.oz + c.ev_z*ep);
+      c.group.rotation.z += dt * c.ev_rx * ep * 3;
+      setOpacity(c.group, Math.max(0, 1 - ep*1.4));
+    }
+  });
+
+  // ── RAFTERS — rise in ──
+  applyPhase(rafterComps, t, PHASES.roof[0], PHASES.roof[0]+0.5, 0.25, (c, ft) => {
+    if (!inExplode) {
+      c.group.position.set(c.ox, c.oy - 2*(1-ft), c.oz);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x*ep, c.oy + c.ev_y*ep - 4*ep*ep, c.oz + c.ev_z*ep);
+      c.group.rotation.x += dt * c.ev_rx * ep * 3;
+      setOpacity(c.group, Math.max(0, 1 - ep*1.4));
+    }
+  });
+
+  // ── PURLINS — slide in along Z ──
+  applyPhase(purlinComps, t, PHASES.roof[0]+0.3, PHASES.roof[1], 0.5, (c, ft) => {
+    if (!inExplode) {
+      c.group.position.set(c.ox + (1-ft)*BD, c.oy, c.oz);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x*ep, c.oy + c.ev_y*ep - 4*ep*ep, c.oz + c.ev_z*ep);
+      c.group.rotation.y += dt * c.ev_ry * ep * 3;
+      setOpacity(c.group, Math.max(0, 1 - ep*1.4));
+    }
+  });
+
+  // ── RIDGE ──
+  {
+    const ft = easeOut(phaseT(t, PHASES.roof[0]+0.4, PHASES.roof[1]));
+    const c = ridgeComp;
+    if (!inExplode) {
+      c.group.position.set(c.ox, c.oy, c.oz);
+      c.group.scale.set(1, 1, ft);
+      setOpacity(c.group, ft);
+    } else {
+      const ep = explodeT;
+      c.group.position.set(c.ox + c.ev_x*ep, c.oy + c.ev_y*ep - 4*ep*ep, c.oz + c.ev_z*ep);
+      setOpacity(c.group, Math.max(0, 1 - ep*1.4));
+    }
+  }
+
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+});
+
+animate();
+</script>
+</body>
+</html>
