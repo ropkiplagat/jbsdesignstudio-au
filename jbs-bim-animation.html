@@ -281,20 +281,37 @@ function animate() {
   const inExplode = t >= PHASES.explode[0];
   const explodeT  = inExplode ? easeIn(phaseT(t, PHASES.explode[0], PHASES.explode[1])) : 0;
 
-  // ── SLAB ──
+  // ── SLAB — rise from underground, expand XZ, glow pulse ──
   {
     const ft = easeOut(phaseT(t, PHASES.slab[0], PHASES.slab[1]));
     const c = slabComp;
     if (!inExplode) {
+      // Rise from y=-4 up to resting position
+      const riseY = c.oy - 4 * (1 - ft);
+      c.group.position.set(c.ox, riseY, c.oz);
+      // Expand from 0 to full width/depth
       c.group.scale.set(ft, 1, ft);
-      c.group.position.set(c.ox, c.oy, c.oz);
-      setOpacity(c.group, ft);
+      // Opacity surges in fast then stays solid
+      const op = Math.min(1, ft * 2.5);
+      setOpacity(c.group, op);
+      // Glow pulse at moment of landing (ft near 1)
+      const pulse = Math.max(0, 1 - Math.abs(ft - 0.95) * 40);
+      c.group.traverse(obj => {
+        if (obj.material && obj.material._baseOpacity) {
+          obj.material.opacity = Math.min(1, op * obj.material._baseOpacity + pulse * 0.6);
+        }
+      });
     } else {
+      // Explode: slab cracks outward flat then drops
       const ep = explodeT;
-      c.group.position.set(c.ox + c.ev_x * ep, c.oy + c.ev_y * ep - 4*ep*ep, c.oz + c.ev_z * ep);
-      c.group.rotation.x += dt * c.ev_rx * ep * 2;
-      c.group.rotation.z += dt * c.ev_ry * ep * 2;
-      setOpacity(c.group, Math.max(0, 1 - ep * 1.4));
+      c.group.scale.set(1 + ep * 0.4, 1, 1 + ep * 0.4); // crack outward
+      c.group.position.set(
+        c.ox + c.ev_x * ep * 0.6,
+        c.oy - 6 * ep * ep,             // drops hard
+        c.oz + c.ev_z * ep * 0.6
+      );
+      c.group.rotation.x += dt * 0.8 * ep;
+      setOpacity(c.group, Math.max(0, 1 - ep * 2.5));
     }
   }
 
