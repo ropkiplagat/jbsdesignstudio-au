@@ -1,0 +1,1014 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BIM Outsourcing Australia | JBS Design Studio</title>
+  <meta name="description" content="Cut BIM costs by 40% with JBS Design Studio — Australia's trusted Revit drafting and BIM coordination partner. Free first model. Serving architects, builders & developers.">
+  <meta name="keywords" content="BIM outsourcing Australia, Revit drafting services AU, architectural BIM coordination, pre-DA feasibility Australia">
+  <link rel="canonical" href="https://jbsdesignstudio.com.au/">
+  <meta property="og:title" content="BIM Outsourcing Australia | JBS Design Studio">
+  <meta property="og:description" content="Cut BIM costs by 40% with JBS Design Studio — Australia's trusted Revit drafting and BIM coordination partner.">
+  <meta property="og:type" content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0A1628;
+      --navy-light: #112240;
+      --gold: #D4A843;
+      --gold-light: #E8C06A;
+      --white: #FFFFFF;
+      --grey: #8892A4;
+      --grey-light: #CCD6F6;
+      --section-pad: 100px 0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: var(--white);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 60px;
+      background: rgba(10,22,40,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(212,168,67,0.15);
+      transition: padding 0.3s;
+    }
+
+    .nav-logo {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--white);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+    .nav-logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--grey-light);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    .btn-nav {
+      background: var(--gold);
+      color: var(--navy) !important;
+      padding: 10px 22px;
+      border-radius: 6px;
+      font-weight: 700 !important;
+      font-size: 0.875rem !important;
+      transition: background 0.2s, transform 0.2s !important;
+    }
+    .btn-nav:hover { background: var(--gold-light) !important; transform: translateY(-1px); }
+
+    .nav-toggle { display: none; background: none; border: none; cursor: pointer; }
+    .nav-toggle span {
+      display: block; width: 24px; height: 2px;
+      background: var(--white); margin: 5px 0;
+      transition: 0.3s;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 600px;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #hero-canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(10,22,40,0.85) 0%, rgba(10,22,40,0.5) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      padding: 0 60px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: rgba(212,168,67,0.15);
+      border: 1px solid rgba(212,168,67,0.4);
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 24px;
+    }
+
+    .hero-content h1 {
+      font-size: clamp(2.2rem, 5vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 24px;
+      letter-spacing: -1px;
+    }
+    .hero-content h1 em {
+      color: var(--gold);
+      font-style: normal;
+    }
+
+    .hero-content p {
+      font-size: 1.15rem;
+      color: var(--grey-light);
+      margin-bottom: 40px;
+      max-width: 580px;
+      line-height: 1.7;
+    }
+
+    .hero-ctas {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      background: var(--gold);
+      color: var(--navy);
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 1rem;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: var(--gold-light); transform: translateY(-2px); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      padding: 16px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1rem;
+      text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.3);
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      background: rgba(212,168,67,0.08);
+      color: var(--gold);
+    }
+
+    /* ── STATS BAR ── */
+    #stats {
+      background: var(--navy-light);
+      border-top: 1px solid rgba(212,168,67,0.2);
+      border-bottom: 1px solid rgba(212,168,67,0.2);
+      padding: 50px 60px;
+    }
+
+    .stats-grid {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      text-align: center;
+    }
+
+    .stat-item {}
+    .stat-number {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+    .stat-label {
+      font-size: 0.95rem;
+      color: var(--grey-light);
+      font-weight: 500;
+    }
+
+    /* ── SECTIONS ── */
+    section { padding: var(--section-pad); }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 60px;
+    }
+
+    .section-label {
+      display: inline-block;
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.5px;
+      margin-bottom: 20px;
+    }
+
+    .section-sub {
+      font-size: 1.05rem;
+      color: var(--grey-light);
+      max-width: 600px;
+      line-height: 1.7;
+      margin-bottom: 60px;
+    }
+
+    /* ── SERVICES ── */
+    #services { background: var(--navy); }
+
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .service-card {
+      background: var(--navy-light);
+      border: 1px solid rgba(212,168,67,0.15);
+      border-radius: 12px;
+      padding: 40px 32px;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .service-card:hover {
+      border-color: var(--gold);
+      transform: translateY(-6px);
+    }
+
+    .service-icon {
+      width: 52px;
+      height: 52px;
+      background: rgba(212,168,67,0.12);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      font-size: 1.5rem;
+    }
+
+    .service-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .service-card p {
+      font-size: 0.95rem;
+      color: var(--grey-light);
+      line-height: 1.7;
+    }
+
+    .service-tag {
+      display: inline-block;
+      margin-top: 20px;
+      color: var(--gold);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── HOW IT WORKS ── */
+    #process {
+      background: var(--navy-light);
+    }
+
+    .process-steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      position: relative;
+    }
+
+    .process-steps::before {
+      content: '';
+      position: absolute;
+      top: 28px;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, var(--gold) 0%, rgba(212,168,67,0.2) 100%);
+    }
+
+    .step {
+      text-align: center;
+      position: relative;
+    }
+
+    .step-num {
+      width: 56px;
+      height: 56px;
+      background: var(--gold);
+      color: var(--navy);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin: 0 auto 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step h4 {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .step p {
+      font-size: 0.875rem;
+      color: var(--grey-light);
+      line-height: 1.6;
+    }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials { background: var(--navy); }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+
+    .testimonial-card {
+      background: var(--navy-light);
+      border: 1px solid rgba(212,168,67,0.12);
+      border-radius: 12px;
+      padding: 36px 32px;
+    }
+
+    .quote-mark {
+      font-size: 3rem;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 16px;
+      font-family: Georgia, serif;
+    }
+
+    .testimonial-card p {
+      font-size: 0.95rem;
+      color: var(--grey-light);
+      line-height: 1.7;
+      margin-bottom: 24px;
+      font-style: italic;
+    }
+
+    .testimonial-author strong {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+    .testimonial-author span {
+      font-size: 0.85rem;
+      color: var(--grey);
+    }
+
+    /* ── CALCULATOR CTA ── */
+    #calc-cta {
+      background: linear-gradient(135deg, var(--navy-light) 0%, #0d1f3c 100%);
+      border-top: 1px solid rgba(212,168,67,0.2);
+      border-bottom: 1px solid rgba(212,168,67,0.2);
+      text-align: center;
+    }
+
+    #calc-cta .section-title { max-width: 700px; margin: 0 auto 20px; }
+    #calc-cta .section-sub { margin: 0 auto 40px; }
+
+    .calc-features {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      margin-bottom: 40px;
+      flex-wrap: wrap;
+    }
+
+    .calc-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--grey-light);
+      font-size: 0.9rem;
+    }
+    .calc-feature::before {
+      content: '✓';
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* ── FAQ ── */
+    #faq { background: var(--navy); }
+
+    .faq-list {
+      max-width: 760px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 24px 0;
+    }
+
+    .faq-question {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      gap: 20px;
+    }
+
+    .faq-question h4 {
+      font-size: 1rem;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .faq-icon {
+      width: 28px;
+      height: 28px;
+      background: rgba(212,168,67,0.12);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gold);
+      font-size: 1.2rem;
+      flex-shrink: 0;
+      transition: transform 0.3s;
+    }
+
+    .faq-answer {
+      display: none;
+      padding-top: 16px;
+      font-size: 0.95rem;
+      color: var(--grey-light);
+      line-height: 1.7;
+    }
+
+    .faq-item.open .faq-answer { display: block; }
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--navy-light);
+      border-top: 1px solid rgba(212,168,67,0.15);
+      padding: 60px;
+    }
+
+    .footer-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 60px;
+    }
+
+    .footer-brand .nav-logo { font-size: 1.1rem; margin-bottom: 16px; display: block; }
+    .footer-brand p {
+      font-size: 0.9rem;
+      color: var(--grey);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .footer-contact a {
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.9rem;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .footer-col h5 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+
+    .footer-col ul { list-style: none; }
+    .footer-col li { margin-bottom: 10px; }
+    .footer-col a {
+      color: var(--grey-light);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--gold); }
+
+    .footer-bottom {
+      max-width: 1100px;
+      margin: 40px auto 0;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--grey);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 16px 30px; }
+      .hero-content { padding: 0 30px; }
+      .container { padding: 0 30px; }
+      #stats { padding: 40px 30px; }
+      footer { padding: 50px 30px; }
+      .services-grid { grid-template-columns: repeat(2, 1fr); }
+      .testimonials-grid { grid-template-columns: repeat(2, 1fr); }
+      .process-steps { grid-template-columns: repeat(2, 1fr); }
+      .process-steps::before { display: none; }
+      .footer-inner { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; flex-direction: column; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--navy); justify-content: center; align-items: center; gap: 32px; z-index: 999; }
+      .nav-links.open { display: flex; }
+      .nav-toggle { display: block; z-index: 1000; }
+      .hero-content { padding: 0 20px; }
+      .container { padding: 0 20px; }
+      #stats { padding: 40px 20px; }
+      .stats-grid { grid-template-columns: 1fr; gap: 28px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .footer-inner { grid-template-columns: 1fr; gap: 36px; }
+      footer { padding: 40px 20px; }
+      .hero-ctas { flex-direction: column; }
+      .btn-primary, .btn-secondary { text-align: center; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <a href="#" class="nav-logo">JBS <span>Design Studio</span></a>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#services">Services</a></li>
+      <li><a href="jbs-bim-calculator.html">Calculator</a></li>
+      <li><a href="#process">About</a></li>
+      <li><a href="#faq">FAQ</a></li>
+      <li><a href="mailto:ropkiplagat@jbsdesignstudio.com.au" class="btn-nav">Free BIM Audit</a></li>
+    </ul>
+    <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <canvas id="hero-canvas"></canvas>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">Australia's BIM Outsourcing Partner</div>
+      <h1>Cut Your BIM Costs by <em>40%</em> — Without Cutting Corners</h1>
+      <p>JBS Design Studio delivers precision Revit modelling, clash detection, and pre-DA feasibility support for Australian architects, builders, and developers — at a fraction of in-house costs. Your first BIM model is on us.</p>
+      <div class="hero-ctas">
+        <a href="jbs-bim-calculator.html" class="btn-primary">Calculate My Savings →</a>
+        <a href="mailto:ropkiplagat@jbsdesignstudio.com.au" class="btn-secondary">Book a Free Call</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div id="stats">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number" data-target="40">0%</div>
+        <div class="stat-label">Average Cost Reduction</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">48hr</div>
+        <div class="stat-label">Standard Turnaround</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" data-target="50">0+</div>
+        <div class="stat-label">Australian Projects Delivered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="container">
+      <span class="section-label">What We Do</span>
+      <h2 class="section-title">BIM Outsourcing for Every Stage of the Project</h2>
+      <p class="section-sub">Whether you're an architect managing production load, a builder watching for site surprises, or a developer making pre-DA decisions — JBS has the BIM support your project needs.</p>
+
+      <div class="services-grid">
+        <div class="service-card">
+          <div class="service-icon">📐</div>
+          <h3>Revit Drafting & BIM Coordination</h3>
+          <p>Free up your studio's capacity without hiring. Fully coordinated Revit models and documentation packages tailored to your LOD requirements and AU construction standards. Plug directly into your existing workflow.</p>
+          <span class="service-tag">→ For Architects</span>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🏗️</div>
+          <h3>Clash Detection & RFI Management</h3>
+          <p>Catch clashes in the model — not on site. Federated clash detection across architectural, structural, and services packages. Clear, prioritised reports your site team can act on. RFI documentation and site variation modelling included.</p>
+          <span class="service-tag">→ For Builders</span>
+        </div>
+        <div class="service-card">
+          <div class="service-icon">🏙️</div>
+          <h3>Pre-DA Feasibility & Planning Permits</h3>
+          <p>Make smarter investment decisions before you commit. BIM-backed massing models, yield analysis, shadow diagrams, and council-ready planning permit documentation across VIC, NSW, QLD, and beyond.</p>
+          <span class="service-tag">→ For Developers</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="process">
+    <div class="container">
+      <span class="section-label">The Process</span>
+      <h2 class="section-title">From Brief to Delivery in 48 Hours</h2>
+      <p class="section-sub">No lengthy onboarding. No rework. Just a clean, repeatable process that delivers accurate BIM models on brief, every time.</p>
+
+      <div class="process-steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <h4>Brief</h4>
+          <p>Send your brief, source files, and Revit template. We ask three questions if anything's unclear — no lengthy kickoff sessions.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <h4>Model</h4>
+          <p>Our Revit team works to your LOD requirements, naming conventions, and NCC standards. Compliance checked before anything leaves our desk.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <h4>Review</h4>
+          <p>You receive the model and markups. One round of revisions included — same day turnaround on comments.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <h4>Deliver</h4>
+          <p>Final files in your preferred format. Ready to use in your coordination or documentation workflow. No watermarks. No limitations.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="container">
+      <span class="section-label">Client Results</span>
+      <h2 class="section-title">What AU Professionals Say</h2>
+      <p class="section-sub">From architecture studios to construction groups and development firms — JBS delivers measurable results across the AEC sector.</p>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p>We couldn't justify another full-time Revit technician. JBS stepped in within days and matched our template standards perfectly. The quality is indistinguishable from in-house work — and we've cut our drafting costs by nearly half.</p>
+          <div class="testimonial-author">
+            <strong>Samantha Okafor</strong>
+            <span>Director, Okafor Architecture — Melbourne VIC</span>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p>The clash detection reports JBS produced for our Parramatta project saved us at least three weeks of on-site rework. Clear, prioritised, and actually useful — not just a raw Navisworks dump. I'll use them on every future project.</p>
+          <div class="testimonial-author">
+            <strong>Daniel Marchetti</strong>
+            <span>Project Manager, Marchetti Construction Group — Sydney NSW</span>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p>Rop and the JBS team turned around our pre-DA feasibility model in under 48 hours. That speed let us move on site acquisition while competitors were still waiting on quotes. The free first model offer sealed the deal.</p>
+          <div class="testimonial-author">
+            <strong>Priya Nambiar</strong>
+            <span>Development Manager, Skyline Urban — Brisbane QLD</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALCULATOR CTA -->
+  <section id="calc-cta">
+    <div class="container">
+      <span class="section-label">BIM Savings Calculator</span>
+      <h2 class="section-title">See Exactly How Much You'll Save on BIM</h2>
+      <p class="section-sub">Enter your project numbers and get a personalised BIM cost saving report — then claim your free first model.</p>
+
+      <div class="calc-features">
+        <span class="calc-feature">Takes 60 seconds</span>
+        <span class="calc-feature">No obligation</span>
+        <span class="calc-feature">Personalised to your project type</span>
+        <span class="calc-feature">Free model included</span>
+      </div>
+
+      <a href="jbs-bim-calculator.html" class="btn-primary" style="font-size:1.1rem; padding: 18px 40px;">
+        Calculate Your BIM Savings →
+      </a>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="container">
+      <span class="section-label">Common Questions</span>
+      <h2 class="section-title">BIM Outsourcing, Explained</h2>
+
+      <div class="faq-list">
+        <div class="faq-item">
+          <div class="faq-question">
+            <h4>What does BIM outsourcing actually involve — and is it right for my practice?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">BIM outsourcing means engaging an external team to handle your Revit modelling, documentation, and coordination work rather than doing it all in-house. JBS works as a seamless extension of your team — using your templates, your naming conventions, and your project management tools. It's right for any practice, builder, or developer that wants to reduce overhead, scale capacity, or access specialist BIM skills without a permanent hire.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <h4>How do you ensure model quality and NCC compliance on Australian projects?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">Every model JBS produces is reviewed against Australian construction standards and the relevant NCC volume before delivery. Our team has direct experience with Australian residential and commercial building codes, and we flag compliance risks proactively. For DA and planning submissions, we align to the specific council's requirements and ensure all documentation meets the expected submission standard.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <h4>What's included in the free first BIM model offer?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">Your free first model covers a single standard Revit modelling task — typically a residential unit, small commercial tenancy, or equivalent scope. It's produced to the same quality as all paid work: fully modelled, LOD-appropriate, and ready to use. No watermarks, no limitations. It's our way of proving the quality before you commit to an ongoing arrangement.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <h4>How do you handle clashes between architectural, structural, and MEP models?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">JBS runs federated clash detection using Navisworks, cross-referencing architectural, structural, and services models to identify hard clashes, soft clashes, and workflow conflicts. We produce prioritised clash reports with clear visual references and recommended resolutions — not just raw clash counts. Reports are formatted for your site team or project meetings.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-question">
+            <h4>What's the typical turnaround time, and how do you handle urgent requests?</h4>
+            <span class="faq-icon">+</span>
+          </div>
+          <div class="faq-answer">Standard Revit modelling and drafting tasks are delivered within 48 hours of receiving a complete brief and source files. For larger coordination packages we agree on a programme at brief stage and hit it. Urgent requests — pre-site-meeting clash reports, last-minute DA documentation — are handled as priority jobs. Contact Rop directly at ropkiplagat@jbsdesignstudio.com.au.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo">JBS <span style="color:var(--gold)">Design Studio</span></a>
+        <p>Australia's trusted BIM outsourcing partner for architects, builders, and developers. Precision Revit modelling, clash detection, and pre-DA feasibility support — at 40% less than in-house costs.</p>
+        <div class="footer-contact">
+          <a href="mailto:ropkiplagat@jbsdesignstudio.com.au">ropkiplagat@jbsdesignstudio.com.au</a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Services</h5>
+        <ul>
+          <li><a href="#services">For Architects</a></li>
+          <li><a href="#services">For Builders</a></li>
+          <li><a href="#services">For Developers</a></li>
+          <li><a href="jbs-bim-calculator.html">BIM Calculator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#process">How It Works</a></li>
+          <li><a href="#testimonials">Case Studies</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="mailto:ropkiplagat@jbsdesignstudio.com.au">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 JBS Design Studio. All rights reserved.</span>
+      <span>BIM Outsourcing Australia | Revit Drafting Services AU</span>
+    </div>
+  </footer>
+
+  <script>
+    // ── THREE.JS BUILDING ──
+    (function() {
+      const canvas = document.getElementById('hero-canvas');
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.setClearColor(0x0A1628, 1);
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth / canvas.clientHeight, 0.1, 1000);
+      camera.position.set(12, 8, 18);
+      camera.lookAt(0, 4, 0);
+
+      const lineMat = new THREE.LineBasicMaterial({ color: 0xD4A843, transparent: true, opacity: 0.8 });
+      const dimMat = new THREE.LineBasicMaterial({ color: 0xD4A843, transparent: true, opacity: 0.25 });
+
+      function buildingBlock(w, h, d, x, y, z, mat) {
+        const geo = new THREE.BoxGeometry(w, h, d);
+        const edges = new THREE.EdgesGeometry(geo);
+        const line = new THREE.LineSegments(edges, mat);
+        line.position.set(x, y + h / 2, z);
+        return line;
+      }
+
+      const group = new THREE.Group();
+
+      // Ground floor wide base
+      group.add(buildingBlock(8, 1.2, 6, 0, 0, 0, lineMat));
+      // Tower floors
+      for (let i = 0; i < 7; i++) {
+        const w = 5.5 - i * 0.1;
+        const d = 4 - i * 0.05;
+        group.add(buildingBlock(w, 1.8, d, 0, 1.2 + i * 1.8, 0, i % 2 === 0 ? lineMat : dimMat));
+      }
+      // Top penthouse
+      group.add(buildingBlock(3.5, 1.5, 2.5, 0, 1.2 + 7 * 1.8, 0, lineMat));
+      // Roof antenna
+      const antGeo = new THREE.CylinderGeometry(0.05, 0.05, 2.5, 6);
+      const antEdge = new THREE.EdgesGeometry(antGeo);
+      const ant = new THREE.LineSegments(antEdge, lineMat);
+      ant.position.set(0, 1.2 + 7 * 1.8 + 1.5 + 1.25, 0);
+      group.add(ant);
+
+      // Background city silhouette (dimmer)
+      [-7, -9, 7, 9].forEach((x, i) => {
+        const h = [6, 9, 5, 8][i];
+        group.add(buildingBlock(2.5, h, 2, x, 0, -3, dimMat));
+      });
+
+      // Grid floor
+      const gridSize = 30;
+      const gridDivs = 20;
+      const gridGeo = new THREE.BufferGeometry();
+      const gridPoints = [];
+      for (let i = 0; i <= gridDivs; i++) {
+        const t = (i / gridDivs - 0.5) * gridSize;
+        gridPoints.push(t, 0, -gridSize / 2, t, 0, gridSize / 2);
+        gridPoints.push(-gridSize / 2, 0, t, gridSize / 2, 0, t);
+      }
+      gridGeo.setAttribute('position', new THREE.Float32BufferAttribute(gridPoints, 3));
+      const gridMat = new THREE.LineBasicMaterial({ color: 0x1a3a5c, transparent: true, opacity: 0.4 });
+      group.add(new THREE.LineSegments(gridGeo, gridMat));
+
+      scene.add(group);
+
+      // Ambient particles
+      const partGeo = new THREE.BufferGeometry();
+      const partCount = 80;
+      const positions = new Float32Array(partCount * 3);
+      for (let i = 0; i < partCount * 3; i++) positions[i] = (Math.random() - 0.5) * 40;
+      partGeo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+      const partMat = new THREE.PointsMaterial({ color: 0xD4A843, size: 0.06, transparent: true, opacity: 0.5 });
+      scene.add(new THREE.Points(partGeo, partMat));
+
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.005;
+        group.rotation.y = t * 0.3;
+        group.position.y = Math.sin(t * 0.5) * 0.3;
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      window.addEventListener('resize', () => {
+        const w = canvas.clientWidth, h = canvas.clientHeight;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h);
+      });
+    })();
+
+    // ── GSAP SCROLL ANIMATIONS ──
+    gsap.registerPlugin(ScrollTrigger);
+
+    gsap.utils.toArray('.service-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%' },
+        opacity: 0, y: 40, duration: 0.7, delay: i * 0.15
+      });
+    });
+
+    gsap.utils.toArray('.testimonial-card').forEach((card, i) => {
+      gsap.from(card, {
+        scrollTrigger: { trigger: card, start: 'top 85%' },
+        opacity: 0, y: 40, duration: 0.7, delay: i * 0.15
+      });
+    });
+
+    gsap.utils.toArray('.step').forEach((step, i) => {
+      gsap.from(step, {
+        scrollTrigger: { trigger: step, start: 'top 85%' },
+        opacity: 0, y: 30, duration: 0.6, delay: i * 0.1
+      });
+    });
+
+    gsap.from('.hero-content', { opacity: 0, y: 50, duration: 1.2, delay: 0.3 });
+    gsap.from('.hero-badge', { opacity: 0, y: 20, duration: 0.8, delay: 0.2 });
+
+    // ── STAT COUNTER ──
+    document.querySelectorAll('[data-target]').forEach(el => {
+      const target = parseInt(el.dataset.target);
+      const suffix = el.textContent.includes('+') ? '+' : '%';
+      ScrollTrigger.create({
+        trigger: el,
+        start: 'top 90%',
+        onEnter: () => {
+          let count = 0;
+          const step = target / 40;
+          const timer = setInterval(() => {
+            count = Math.min(count + step, target);
+            el.textContent = Math.round(count) + suffix;
+            if (count >= target) clearInterval(timer);
+          }, 30);
+        }
+      });
+    });
+
+    // ── FAQ ACCORDION ──
+    document.querySelectorAll('.faq-question').forEach(q => {
+      q.addEventListener('click', () => {
+        const item = q.closest('.faq-item');
+        const open = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!open) item.classList.add('open');
+      });
+    });
+
+    // ── MOBILE NAV ──
+    document.getElementById('navToggle').addEventListener('click', () => {
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+
+    // ── NAV SCROLL ──
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').style.boxShadow =
+        window.scrollY > 60 ? '0 4px 30px rgba(0,0,0,0.3)' : 'none';
+    });
+  </script>
+</body>
+</html>
