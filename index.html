@@ -858,38 +858,47 @@
     // ── SCROLL-DRIVEN VIDEO HERO ──
     (function() {
       const video = document.getElementById('hero-video');
-      const heroSection = document.getElementById('hero');
+      const hero  = document.getElementById('hero');
+      const text  = document.getElementById('hero-text');
+      let ready   = false;
 
-      // Pause as soon as browser has enough data — autoplay is only there to force load
-      video.addEventListener('canplay', () => { video.pause(); video.currentTime = 0; });
+      function initScrub() {
+        if (ready) return;
+        ready = true;
+        video.pause();
+        video.currentTime = 0;
 
-      function scrub() {
-        const heroTop = heroSection.offsetTop;
-        const heroHeight = heroSection.offsetHeight - window.innerHeight;
-        const scrolled = Math.max(0, window.scrollY - heroTop);
-        const progress = Math.min(1, scrolled / heroHeight);
+        ScrollTrigger.create({
+          trigger: hero,
+          start: 'top top',
+          end: 'bottom bottom',
+          onUpdate(self) {
+            const p = self.progress;
 
-        if (video.readyState >= 2 && video.duration) {
-          video.currentTime = progress * video.duration;
-        }
+            // scrub video
+            if (video.duration) {
+              video.currentTime = p * video.duration;
+            }
 
-        const text = document.getElementById('hero-text');
-        if (progress > 0.6) {
-          const textProgress = (progress - 0.6) / 0.4;
-          text.style.opacity = textProgress;
-          text.style.transform = `translateY(${(1 - textProgress) * 40}px)`;
-        } else {
-          text.style.opacity = 0;
-          text.style.transform = 'translateY(40px)';
-        }
+            // fade text in after 60% scroll
+            if (p > 0.6) {
+              const tp = (p - 0.6) / 0.4;
+              text.style.opacity   = tp;
+              text.style.transform = 'translateY(' + ((1 - tp) * 40) + 'px)';
+            } else {
+              text.style.opacity   = 0;
+              text.style.transform = 'translateY(40px)';
+            }
+          }
+        });
       }
 
-      window.addEventListener('scroll', scrub, { passive: true });
-
-      window.addEventListener('resize', () => {
-        video.style.width = '100vw';
-        video.style.height = '100vh';
-      });
+      // Try to init as soon as we have metadata (duration known)
+      video.addEventListener('loadedmetadata', initScrub);
+      // Fallback: canplay
+      video.addEventListener('canplay', initScrub);
+      // Fallback: if already loaded
+      if (video.readyState >= 1) initScrub();
     })();
 
     // ── GSAP SCROLL ANIMATIONS ──
